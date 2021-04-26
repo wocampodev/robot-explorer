@@ -13,6 +13,12 @@ const emitVideo = ( client, Socket ) => {
     });
 };
 
+const receiveCommandMovement = ( client, Socket ) => {
+    client.on('command-movement', payload => {
+        console.log( payload );
+    });
+};
+
 const desconectar = ( cliente, io ) => {
 
     cliente.on('disconnect', () => {
@@ -26,5 +32,6 @@ const desconectar = ( cliente, io ) => {
 module.exports = {
     emitTemperature,
     emitVideo,
+    receiveCommandMovement,
     desconectar
 }

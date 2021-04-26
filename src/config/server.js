@@ -47,6 +47,7 @@ class Server {
         
         this.io.on('connection', client => {
             Events.emitVideo( client, this.io );
+            Events.receiveCommandMovement( client, this.io );
             Events.desconectar( client, this.io );
         });
         Events.emitTemperature( this.io );
