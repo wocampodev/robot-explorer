@@ -46,18 +46,10 @@ class Server {
     listen() {
         
         this.io.on('connection', client => {
-            
-            Events.emitTemperature( this.io );
-            // Configurar usuario
-            Events.configurarUsuario( client, this.io );
-            // Mensaje
-            Events.mensaje( client, this.io );            
-            // Listado de conectados para un usuario
-            Events.obtenerUsuarios( client, this.io );
-            // Desconectar
+            Events.emitVideo( client, this.io );
             Events.desconectar( client, this.io );
         });
-        
+        Events.emitTemperature( this.io );
     }
 
     start() {
