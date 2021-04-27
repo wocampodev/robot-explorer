@@ -1,4 +1,5 @@
 const getTemperature = require('../modules/temperature');
+// const { analizeCamera } = require('../modules/object-detection');
 
 const emitTemperature = Socket => {
     setInterval( () => {
@@ -7,9 +8,11 @@ const emitTemperature = Socket => {
 };
 
 const emitVideo = ( client, Socket ) => {
-    client.on('camera-laptop', payload => {
+    client.on('camera-laptop', async payload => {
+        // const data = await analizeCamera( payload.video );
+        // console.log( data );
+        console.log(payload.video);
         Socket.emit( 'streaming', payload.video );
-        // Socket.broadcast.emit( 'streaming', payload.video );
     });
 };
 
@@ -20,13 +23,9 @@ const receiveCommandMovement = ( client, Socket ) => {
 };
 
 const desconectar = ( cliente, io ) => {
-
     cliente.on('disconnect', () => {
-
-        io.emit( 'close', 'Desconectados' );
-    
+        // io.emit( 'close', 'Desconectados' );
     });
-
 };
 
 module.exports = {
@@ -34,4 +33,4 @@ module.exports = {
     emitVideo,
     receiveCommandMovement,
     desconectar
-}
+};
