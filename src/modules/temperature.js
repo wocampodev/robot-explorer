@@ -1,5 +1,5 @@
 const getTemperature = () => {
-    return Math.round( Math.random() * 50 );
+    return Math.round(Math.random() * 50);
 };
 
 module.exports = getTemperature;
