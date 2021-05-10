@@ -1,112 +1,26 @@
 #include <SoftwareSerial.h>
 #define DEBUG true
-SoftwareSerial esp8266(4,5); // make RX Arduino line is pin 5, make TX Arduino line is pin 6.
+SoftwareSerial esp8266(4,5);
 
 float valorTemperatura = 0;
 float valorConcentracionGas = 0;
-
-const int LeftMotorForward = 13;
-const int LeftMotorBackward = 12;
-const int RightMotorForward = 11;
-const int RightMotorBackward = 10;
-
-boolean goesForward = false;
     
 void setup()
 {
     Serial.begin(9600);
-    pinMode(RightMotorForward, OUTPUT);
-    pinMode(LeftMotorForward, OUTPUT);
-    pinMode(LeftMotorBackward, OUTPUT);
-    pinMode(RightMotorBackward, OUTPUT);
     configurarWifi();
 }
 
-void moveStop()
+void configurarWifi()
 {
-
-  digitalWrite(RightMotorForward, LOW);
-  digitalWrite(LeftMotorForward, LOW);
-  digitalWrite(RightMotorBackward, LOW);
-  digitalWrite(LeftMotorBackward, LOW);
+    esp8266.begin(115200);
+    enviarComando("AT+RST\r\n",2000,DEBUG);
+    enviarComando("AT+CWMODE=3\r\n",1000,DEBUG);
+    enviarComando("AT+CWJAP=\"CLARO-B612-6417\",\"10gFTNtLm2\"\r\n", 6000, DEBUG);
+    enviarComando("AT+CIFSR\r\n",2000,DEBUG);
+    enviarComando("AT+CIPMUX=1\r\n",1000,DEBUG);
+    enviarComando("AT+CIPSERVER=1,80\r\n",1000,DEBUG);
 }
-
-void moveForward()
-{
-  Serial.print("Avvanzando");
-  if (!goesForward)
-  {
-  
-    goesForward = true;
-
-    digitalWrite(LeftMotorForward, HIGH);
-    digitalWrite(RightMotorForward, HIGH);
-
-    digitalWrite(LeftMotorBackward, LOW);
-    digitalWrite(RightMotorBackward, LOW);
-  }
-}
-
-void moveBackward()
-{
-
-  goesForward = false;
-
-  digitalWrite(LeftMotorBackward, HIGH);
-  digitalWrite(RightMotorBackward, HIGH);
-
-  digitalWrite(LeftMotorForward, LOW);
-  digitalWrite(RightMotorForward, LOW);
-}
-
-void turnRight()
-{
-
-  digitalWrite(LeftMotorForward, HIGH);
-  digitalWrite(RightMotorBackward, HIGH);
-
-  digitalWrite(LeftMotorBackward, LOW);
-  digitalWrite(RightMotorForward, LOW);
-
-  delay(500);
-
-  digitalWrite(LeftMotorForward, HIGH);
-  digitalWrite(RightMotorForward, HIGH);
-
-  digitalWrite(LeftMotorBackward, LOW);
-  digitalWrite(RightMotorBackward, LOW);
-}
-
-void turnLeft()
-{
-
-  digitalWrite(LeftMotorBackward, HIGH);
-  digitalWrite(RightMotorForward, HIGH);
-
-  digitalWrite(LeftMotorForward, LOW);
-  digitalWrite(RightMotorBackward, LOW);
-
-  delay(500);
-
-  digitalWrite(LeftMotorForward, HIGH);
-  digitalWrite(RightMotorForward, HIGH);
-
-  digitalWrite(LeftMotorBackward, LOW);
-  digitalWrite(RightMotorBackward, LOW);
-}
-
- void configurarWifi()
- {
-//    esp8266.begin(115200); // your esp's baud rate might be different
-//    enviarComando("AT+RST\r\n",2000,DEBUG); // reset module
-////    enviarComando("AT+CWMODE=2\r\n",1000,DEBUG); // configure as Access point mode
-////    enviarComando("AT+CWSAP=\"AccessPointname\",\"password\",1,4\r\n",1000,DEBUG); //this sets access point name and password //[channel -> 1 to 10] , [securitytype -> 0 – Open / 2 – WPA_PSK /3 – WPA2_PSK / 4 – WPA_WPA2_PSK ]
-//    enviarComando("AT+CWMODE=3\r\n",1000,DEBUG); // configure as Wireless Station mode
-//    enviarComando("AT+CWJAP=\"CLARO-B612-6417\",\"10gFTNtLm2\"\r\n", 6000, DEBUG); //Put Your SSID and password if activate as Station mode else comment down the line
-//    enviarComando("AT+CIFSR\r\n",2000,DEBUG); // get ip address
-//    enviarComando("AT+CIPMUX=1\r\n",1000,DEBUG); // configure for multiple connections
-//    enviarComando("AT+CIPSERVER=1,80\r\n",1000,DEBUG); // turn on server on port 80
- }
 void moduloWifi()
 {
     if(esp8266.available()) {
@@ -126,13 +40,34 @@ void moduloWifi()
             }
 
             if (comando == "G") {
-                Serial.print("Adelante");
-//                moveForward();
+                moverAdelante();
                 String json = "{ \"respuesta\": \"ok\"}";
                 enviarRespuesta(json, idConexion);
-//                delay(3000);
             }
-            
+
+            if (comando == "D") {
+                moverAtras();
+                String json = "{ \"respuesta\": \"ok\"}";
+                enviarRespuesta(json, idConexion);
+            }
+
+            if (comando == "L") {
+                moverIzquierda();
+                String json = "{ \"respuesta\": \"ok\"}";
+                enviarRespuesta(json, idConexion);
+            }
+
+            if (comando == "R") {
+                moverDerecha();
+                String json = "{ \"respuesta\": \"ok\"}";
+                enviarRespuesta(json, idConexion);
+            }
+
+            if (comando == "S") {
+                detenerse();
+                String json = "{ \"respuesta\": \"ok\"}";
+                enviarRespuesta(json, idConexion);
+            }
         }
     }
 }
@@ -146,21 +81,19 @@ void enviarRespuesta(String json, int idConexion)
     cipSend += "\r\n";
     enviarComando(cipSend,200,DEBUG);
     enviarComando(json,200,DEBUG);
-    //BELOW THIS LINE CLOSE THE CONNECTION
     String comandoCierre = "AT+CIPCLOSE="; 
-    comandoCierre += idConexion; // append connection id
+    comandoCierre += idConexion;
     comandoCierre += "\r\n";
     enviarComando(comandoCierre,300,DEBUG);
 }
 
 void enviarComando(String comando, const int duracion, boolean debug)
 {
-    esp8266.print(comando); // send the read character to the esp8266
+    esp8266.print(comando);
     long int tiempo = millis();
 
     while( (tiempo + duracion) > millis()) {
       while(esp8266.available()) {
-        // The esp has data so display its output to the serial window 
         Serial.write(esp8266.read());
       }  
     }
@@ -168,18 +101,5 @@ void enviarComando(String comando, const int duracion, boolean debug)
 
 void loop()
 {
-//      moduloWifi();
-      digitalWrite(LeftMotorForward, HIGH);
-      digitalWrite(LeftMotorBackward, LOW);
-    
-      digitalWrite(RightMotorForward, HIGH);
-      digitalWrite(RightMotorBackward, LOW);
-      delay(5000);
-    
-      digitalWrite(LeftMotorForward, LOW);
-      digitalWrite(LeftMotorBackward, HIGH);
-    
-      digitalWrite(RightMotorForward, LOW);
-      digitalWrite(RightMotorBackward, HIGH);
-      delay(5000);
+    moduloWifi();
 }
