@@ -4,8 +4,6 @@ const int R0_MODULO_GAS = 10;          // Resistencia R0 del sensor en Kilo ohms
 // Datos para lectura multiple
 const int tiempoIntervaloLectura = 100;    // Tiempo entre muestras
 const int cantidadMuestras = 5;       // Numero muestras
-// Ajustar estos valores para vuestro sensor según el Datasheet
-// (opcionalmente, según la calibración que hayáis realizado)
 const float X0 = 200;
 const float Y0 = 1.7;
 const float X1 = 10000;
@@ -19,20 +17,10 @@ const float coord = punto0[1] - punto0[0] * scope;
 
 float valorConcentracionGas = 0;
 
-void setup()
-{
-   Serial.begin(9600);
-}
-void loop()
-{
-   moduloGas();
-   delay(3000);
-}
-
 void moduloGas()
 {
-   float resistenciaPromedio = leerGas(pinGas);      // Obtener la Rs promedio
-   valorConcentracionGas = obtenerConcentracion(resistenciaPromedio/R0_MODULO_GAS);   // Obtener la concentración
+   float resistenciaPromedio = leerGas(pinGas);
+   valorConcentracionGas = obtenerConcentracion(resistenciaPromedio/R0_MODULO_GAS);
    
    // Mostrar el valor de la concentración por serial
    Serial.println("Concentración: ");
@@ -57,4 +45,14 @@ float obtenerResistenciaSensor(int raw_adc)
 float obtenerConcentracion(float rs_ro_ratio)
 {
    return pow(10, coord + scope * log(rs_ro_ratio));
+}
+
+void setup()
+{
+   Serial.begin(9600);
+}
+void loop()
+{
+   moduloGas();
+   delay(3000);
 }
