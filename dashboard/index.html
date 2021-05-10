@@ -60,10 +60,15 @@
                 derecha: 'R',
                 atras: 'D',
             };
-            fetch('http://192.168.1.163?' + opciones[comando]).catch(error => console.log(error));
+            fetch('http://192.168.1.163?' + opciones[comando])
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => console.log(error));
         }
 
-        // leerDatos();
+        leerDatos();
 
         // setInterval(leerDatos, 5000);
 
