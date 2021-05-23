@@ -1,0 +1,6 @@
+<footer class="text-layout">
+  <p-message *ngIf="wsService.statusSocket" severity="success" text="Online">
+  </p-message>
+  <p-message *ngIf="!wsService.statusSocket" severity="error" text="Offline">
+  </p-message>
+</footer>

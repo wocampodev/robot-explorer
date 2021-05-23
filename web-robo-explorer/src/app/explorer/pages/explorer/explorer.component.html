@@ -1,0 +1,19 @@
+<div class="text-layout">
+  <h2>Dashboard</h2>
+</div>
+
+<div class="p-grid">
+  <div class="p-col p-lg-8 p-sm-12">
+    <app-camera></app-camera>
+  </div>
+  <div class="p-col p-lg-4 p-sm-12">
+    <app-controls></app-controls>
+    <app-temperature [temperatura]="temperatura"></app-temperature>
+    <app-gas [gas]="gas"></app-gas>
+    <!-- <h2 class="text-layout">Probando Vídeo</h2> -->
+    <!-- <p-button (click)="onEmission()" type="button"> Enviar </p-button> -->
+  </div>
+</div>
+
+<!-- <video #videoEmission></video> -->
+<!-- <canvas #canvasEmission></canvas> -->

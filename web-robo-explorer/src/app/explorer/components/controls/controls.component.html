@@ -1,0 +1,17 @@
+<p-fieldset legend="Controles" [toggleable]="false">
+  <div class="p-d-flex p-jc-center p-py-2">
+    <p-button class="p-pr-2" [icon]="iconUp" (click)="onMove('G')"> </p-button>
+  </div>
+  <div class="p-d-flex p-jc-center p-py-2">
+    <p-button class="p-px-2" [icon]="iconLeft" (click)="onMove('L')">
+    </p-button>
+    <p-button class="p-px-2" [icon]="iconCenter" (click)="onMove('S')">
+    </p-button>
+    <p-button class="p-px-2" [icon]="iconRight" (click)="onMove('R')">
+    </p-button>
+  </div>
+  <div class="p-d-flex p-jc-center p-py-2">
+    <p-button class="p-px-2" [icon]="iconDown" (click)="onMove('D')">
+    </p-button>
+  </div>
+</p-fieldset>
