@@ -1,86 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-            integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0"
-            crossorigin="anonymous"
-        />
-        <title>Arduino Web Server</title>
-    </head>
-    <body>
-        <h2 class="text-center">Temperatura</h2>
-        <p class="text-center" id="temperatura"></p>
-        <h2 class="text-center">Concentración de Gas</h2>
-        <p class="text-center" id="gas"></p>
-        <div class="d-flex justify-content-center">
-            <button class="btn btn-primary btn-sm fw-bold m-2" type="button" id="adelante">Adelante</button>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+        integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Arduino Web Server</title>
+</head>
+
+<body>
+    <h2 class="text-center">Temperatura</h2>
+    <p class="text-center" id="temperatura"></p>
+    <h2 class="text-center">Concentración de Gas</h2>
+    <p class="text-center" id="gas"></p>
+    <div class="d-flex justify-content-center">
+        <button class="btn btn-primary btn-sm fw-bold m-2" type="button" id="adelante">Adelante</button>
+    </div>
+    <div class="d-flex justify-content-center">
+        <button class="btn btn-primary btn-sm fw-bold m-2" type="button" id="izquierda">Izquierda</button>
+        <button class="btn btn-primary btn-sm fw-bold m-2" type="button" id="detener">Detener</button>
+        <button class="btn btn-primary btn-sm fw-bold m-2" type="button" id="derecha">Derecha</button>
+    </div>
+    <div class="d-flex justify-content-center">
+        <button class="btn btn-primary btn-sm fw-bold m-2" type="button" id="atras">Atrás</button>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-center">
+                    <img id="img-camera" src="http://192.168.1.165:81/stream" alt="">
+                </div>
+            </div>
         </div>
-        <div class="d-flex justify-content-center">
-            <button class="btn btn-primary btn-sm fw-bold m-2" type="button" id="izquierda">Izquierda</button>
-            <button class="btn btn-primary btn-sm fw-bold m-2" type="button" id="detener">Detener</button>
-            <button class="btn btn-primary btn-sm fw-bold m-2" type="button" id="derecha">Derecha</button>
-        </div>
-        <div class="d-flex justify-content-center">
-            <button class="btn btn-primary btn-sm fw-bold m-2" type="button" id="atras">Atrás</button>
-        </div>
-    </body>
-    <script>
-        var temperatura = document.querySelector('#temperatura');
-        var gas = document.querySelector('#gas');
+    </div>
+</body>
+<script>
+    var temperatura = document.querySelector('#temperatura');
+    var gas = document.querySelector('#gas');
+    var imageCamera = document.getElementById('img-camera');
 
-        var adelanteBoton = document.querySelector('#adelante');
-        var izquierdaBoton = document.querySelector('#izquierda');
-        var detenerBoton = document.querySelector('#detener');
-        var derechaBoton = document.querySelector('#derecha');
-        var atrasBoton = document.querySelector('#atras');
+    var adelanteBoton = document.querySelector('#adelante');
+    var izquierdaBoton = document.querySelector('#izquierda');
+    var detenerBoton = document.querySelector('#detener');
+    var derechaBoton = document.querySelector('#derecha');
+    var atrasBoton = document.querySelector('#atras');
 
-        function leerDatos() {
-            temperatura.textContent = '';
-            // gas.textContent = "";
-            fetch('http://192.168.1.163?X')
-                .then(res => res.json())
-                .then(data => {
-                    temperatura.textContent = data.temperatura;
-                    // gas.textContent = data.gas;
-                })
-                .catch(error => console.log(error));
-        }
+    document.addEventListener('DOMContentLoaded', function () {
+        axios.get('http://192.168.1.165/control?var=framesize&val=7')
+            .then(res => res.json())
+            .then(console.info)
+            .catch(console.error);
+    });
 
-        function enviarComando() {
-            var comando = this.getAttribute('id');
-            var opciones = {
-                adelante: 'G',
-                izquierda: 'L',
-                detener: 'S',
-                derecha: 'R',
-                atras: 'D',
-            };
-            fetch('http://192.168.1.163?' + opciones[comando])
-                .then(res => res.json())
-                .then(data => {
-                    console.log(data);
-                })
-                .catch(error => console.log(error));
-        }
+    function leerDatos() {
+        temperatura.textContent = '';
+        gas.textContent = "";
+        axios({
+            method: 'GET', url: 'http://192.168.1.163?X', timeout: 2000, headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            temperatura.textContent = response.data.temperatura;
+            gas.textContent = response.data.gas;
+        }).catch(console.error);
+    }
 
-        leerDatos();
+    function enviarComando() {
+        var comando = this.getAttribute('id');
+        var opciones = {
+            adelante: 'G',
+            izquierda: 'L',
+            detener: 'S',
+            derecha: 'R',
+            atras: 'D',
+        };
 
-        // setInterval(leerDatos, 5000);
+        axios({
+            method: 'GET', url: 'http://192.168.1.163?' + opciones[comando], timeout: 2000, headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(console.info)
+            .catch(_ => {
+                detenerMotores();
+            });
+    }
 
-        adelanteBoton.addEventListener('mousedown', enviarComando);
-        adelanteBoton.addEventListener('mouseup', null);
-        izquierdaBoton.addEventListener('mousedown', enviarComando);
-        izquierdaBoton.addEventListener('mouseup', null);
-        detenerBoton.addEventListener('mousedown', enviarComando);
-        detenerBoton.addEventListener('mouseup', null);
-        derechaBoton.addEventListener('mousedown', enviarComando);
-        derechaBoton.addEventListener('mouseup', null);
-        atrasBoton.addEventListener('mousedown', enviarComando);
-        atrasBoton.addEventListener('mouseup', null);
-    </script>
+    function detenerMotores() {
+        axios({
+            method: 'GET', url: 'http://192.168.1.163?S', timeout: 2000, headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(_ => {
+            console.log('Motores apagados');
+        }).catch(_ => {
+            console.error('No se apagaron los motores');
+        });
+    }
+
+    leerDatos();
+    setInterval(leerDatos, 10000);
+
+    adelanteBoton.addEventListener('mousedown', enviarComando);
+    adelanteBoton.addEventListener('mouseup', null);
+    izquierdaBoton.addEventListener('mousedown', enviarComando);
+    izquierdaBoton.addEventListener('mouseup', null);
+    detenerBoton.addEventListener('mousedown', enviarComando);
+    detenerBoton.addEventListener('mouseup', null);
+    derechaBoton.addEventListener('mousedown', enviarComando);
+    derechaBoton.addEventListener('mouseup', null);
+    atrasBoton.addEventListener('mousedown', enviarComando);
+    atrasBoton.addEventListener('mouseup', null);
+</script>
+
 </html>

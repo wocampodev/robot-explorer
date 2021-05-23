@@ -5,89 +5,71 @@ SoftwareSerial esp8266(4,5); // make RX Arduino line is pin 5, make TX Arduino l
 float valorTemperatura = 0;
 float valorConcentracionGas = 0;
 
-const int LeftMotorForward = 13;
-const int LeftMotorBackward = 12;
-const int RightMotorForward = 10;
-const int RightMotorBackward = 11;
+const int AdelanteIzquierdaTrece = 13;
+const int AtrasIzquierdaDoce = 12;
+const int AdelanteDerechaDiez = 10;
+const int AtrasDerechaOnce = 11;
 
-boolean goesForward = false;
+boolean estaAvanzando = false;
     
 void setup()
 {
     Serial.begin(9600);
-    pinMode(RightMotorForward, OUTPUT);
-    pinMode(LeftMotorForward, OUTPUT);
-    pinMode(LeftMotorBackward, OUTPUT);
-    pinMode(RightMotorBackward, OUTPUT);
+    pinMode(AdelanteDerechaDiez, OUTPUT);
+    pinMode(AdelanteIzquierdaTrece, OUTPUT);
+    pinMode(AtrasIzquierdaDoce, OUTPUT);
+    pinMode(AtrasDerechaOnce, OUTPUT);
     configurarWifi();
 }
 
-void moveStop()
+void detenerse()
 {
-  goesForward = false;
-  digitalWrite(RightMotorForward, LOW);
-  digitalWrite(LeftMotorForward, LOW);
-  digitalWrite(RightMotorBackward, LOW);
-  digitalWrite(LeftMotorBackward, LOW);
+  estaAvanzando = false;
+  digitalWrite(AdelanteDerechaDiez, LOW);
+  digitalWrite(AdelanteIzquierdaTrece, LOW);
+  digitalWrite(AtrasDerechaOnce, LOW);
+  digitalWrite(AtrasIzquierdaDoce, LOW);
 }
 
-void moveForward()
+void moverAdelante()
 {
-  if (!goesForward)
+  if (!estaAvanzando)
   {
-    goesForward = true;
-    digitalWrite(LeftMotorForward, HIGH);
-    digitalWrite(RightMotorForward, HIGH);
+    estaAvanzando = true;
+    digitalWrite(AdelanteIzquierdaTrece, HIGH);
+    digitalWrite(AdelanteDerechaDiez, HIGH);
 
-    digitalWrite(LeftMotorBackward, LOW);
-    digitalWrite(RightMotorBackward, LOW);
+    digitalWrite(AtrasIzquierdaDoce, LOW);
+    digitalWrite(AtrasDerechaOnce, LOW);
   }
 }
 
-void moveBackward()
+void moverAtras()
 {
 
-  goesForward = false;
-  digitalWrite(LeftMotorBackward, HIGH);
-  digitalWrite(RightMotorBackward, HIGH);
-  digitalWrite(LeftMotorForward, LOW);
-  digitalWrite(RightMotorForward, LOW);
+  estaAvanzando = false;
+  digitalWrite(AtrasIzquierdaDoce, HIGH);
+  digitalWrite(AtrasDerechaOnce, HIGH);
+  digitalWrite(AdelanteIzquierdaTrece, LOW);
+  digitalWrite(AdelanteDerechaDiez, LOW);
 }
 
-void turnRight()
+void moverDerecha()
 {
+  digitalWrite(AdelanteIzquierdaTrece, HIGH);
+  digitalWrite(AtrasDerechaOnce, LOW);
 
-  digitalWrite(LeftMotorForward, HIGH);
-  digitalWrite(RightMotorBackward, HIGH);
-
-  digitalWrite(LeftMotorBackward, LOW);
-  digitalWrite(RightMotorForward, LOW);
-
-  delay(500);
-
-  digitalWrite(LeftMotorForward, HIGH);
-  digitalWrite(RightMotorForward, HIGH);
-
-  digitalWrite(LeftMotorBackward, LOW);
-  digitalWrite(RightMotorBackward, LOW);
+  digitalWrite(AtrasIzquierdaDoce, LOW);
+  digitalWrite(AdelanteDerechaDiez, LOW);
 }
 
-void turnLeft()
+void moverIzquierda()
 {
+  digitalWrite(AtrasIzquierdaDoce, LOW);
+  digitalWrite(AdelanteDerechaDiez, HIGH);
 
-  digitalWrite(LeftMotorBackward, HIGH);
-  digitalWrite(RightMotorForward, HIGH);
-
-  digitalWrite(LeftMotorForward, LOW);
-  digitalWrite(RightMotorBackward, LOW);
-
-  delay(500);
-
-  digitalWrite(LeftMotorForward, HIGH);
-  digitalWrite(RightMotorForward, HIGH);
-
-  digitalWrite(LeftMotorBackward, LOW);
-  digitalWrite(RightMotorBackward, LOW);
+  digitalWrite(AdelanteIzquierdaTrece, LOW);
+  digitalWrite(AtrasDerechaOnce, LOW);
 }
 
  void configurarWifi()
@@ -119,39 +101,39 @@ void moduloWifi()
             }
 
             if (comando == "G") {
-                moveForward();
+                moverAdelante();
                 String json = "{ \"respuesta\": \"ok\"}";
                 enviarRespuesta(json, idConexion);
-//                delay(3000);
-//                moveStop();
+                detenerse();
             }
 
             if (comando == "D") {
-                moveBackward();
+                moverAtras();
                 String json = "{ \"respuesta\": \"ok\"}";
                 enviarRespuesta(json, idConexion);
-//                delay(3000);
-//                moveStop();
+               delay(3000);
+               detenerse();
             }
 
             if (comando == "L") {
-                turnLeft();
+                moverIzquierda();
                 String json = "{ \"respuesta\": \"ok\"}";
                 enviarRespuesta(json, idConexion);
-//                delay(3000);
-//                moveStop();
+               delay(3000);
+               detenerse();
             }
 
             if (comando == "R") {
-                turnRight();
+                moverDerecha();
                 String json = "{ \"respuesta\": \"ok\"}";
                 enviarRespuesta(json, idConexion);
-//                delay(3000);
-//                moveStop();
+               delay(3000);
+               detenerse();
             }
 
             if (comando == "S") {
-                moveStop();
+                detenerse();
+                digitalWrite(AdelanteIzquierdaTrece, LOW);
                 String json = "{ \"respuesta\": \"ok\"}";
                 enviarRespuesta(json, idConexion);
             }
