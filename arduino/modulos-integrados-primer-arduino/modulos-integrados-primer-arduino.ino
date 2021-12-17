@@ -176,7 +176,7 @@ void enviarRespuesta(String json, int idConexion)
     enviarComando(cipSend,200,DEBUG);
     enviarComando(json,200,DEBUG);
     //BELOW THIS LINE CLOSE THE CONNECTION
-    String comandoCierre = "AT+CIPCLOSE="; 
+    String comandoCierre = "AT+CIPCLOSE=";
     comandoCierre += idConexion; // append connection id
     comandoCierre += "\r\n";
     enviarComando(comandoCierre,300,DEBUG);
@@ -189,9 +189,9 @@ void enviarComando(String comando, const int duracion, boolean debug)
 
     while( (tiempo + duracion) > millis()) {
       while(esp8266.available()) {
-        // The esp has data so display its output to the serial window 
+        // The esp has data so display its output to the serial window
         Serial.write(esp8266.read());
-      }  
+      }
     }
 }
 
@@ -200,7 +200,7 @@ void moduloGas()
 {
    float resistenciaPromedio = leerGas(pinGas);
    valorConcentracionGas = obtenerConcentracion(resistenciaPromedio/R0_MODULO_GAS);
-   
+
    // Mostrar el valor de la concentración por serial
    Serial.println("Concentración: ");
    Serial.println(valorConcentracionGas);
@@ -235,8 +235,8 @@ void moduloTemperatura()
   valorTemperatura = voltaje * 100 ;
   // valorTemperatura = voltaje * 100 - 50;
   // float tempF = valorTemperatura * 1.8 + 32;
-  //Serial.print("Grados Centrigrados = "); 
-  //Serial.println(valorTemperatura);                          
+  //Serial.print("Grados Centrigrados = ");
+  //Serial.println(valorTemperatura);
 }
 
 void loop()
